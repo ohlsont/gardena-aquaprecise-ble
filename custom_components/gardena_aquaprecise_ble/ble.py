@@ -58,13 +58,45 @@ class AquaPreciseBleDevice:
         """Return a connectable BLEDevice from HA's manager (local or proxy)."""
         return bluetooth.async_ble_device_from_address(self.hass, self.address, connectable=True)
 
+    def signal_report(self) -> str:
+        """Summarise which scanners currently see this device, and at what RSSI.
+
+        Attached to connection failures so range/proxy problems are obvious from
+        the logs alone — e.g. "seen only by a distant, non-connectable proxy at
+        -94 dBm" tells you instantly it's a coverage problem, not a bug.
+        """
+        try:
+            connectable_scanners = bluetooth.async_scanner_count(self.hass, connectable=True)
+            # connectable=False so we also report passive-only scanners that can
+            # see the device but can't be used to connect to it.
+            devices = bluetooth.async_scanner_devices_by_address(
+                self.hass, self.address, connectable=False
+            )
+        except Exception as err:  # diagnostics must never raise
+            return f"signal report unavailable ({err})"
+
+        if not devices:
+            return (
+                f"device not seen by any scanner right now; "
+                f"{connectable_scanners} connectable scanner(s) online"
+            )
+
+        seen = []
+        for dev in devices:
+            rssi = getattr(dev.advertisement, "rssi", None)
+            scanner = dev.scanner
+            source = getattr(scanner, "name", None) or getattr(scanner, "source", "?")
+            note = "" if getattr(scanner, "connectable", False) else " (non-connectable)"
+            seen.append(f"{source}: {rssi} dBm{note}")
+        return f"{connectable_scanners} connectable scanner(s) online; seen by [{'; '.join(seen)}]"
+
     async def _connect(self) -> BleakClient:
         """Establish a connection through the best available adapter/proxy."""
         ble_device = self._get_ble_device()
         if ble_device is None:
             raise AquaPreciseNotInRange(
                 f"No connectable BLE device for {self.address}. "
-                "Is the Bluetooth proxy online and in range?"
+                f"Is the Bluetooth proxy online and in range? [{self.signal_report()}]"
             )
         return await establish_connection(
             BleakClient,
@@ -135,9 +167,12 @@ class AquaPreciseBleDevice:
         except AquaPreciseBleError:
             raise
         except (BleakError, TimeoutError) as err:
+            report = self.signal_report()
+            _LOGGER.warning("Pairing connect failed for %s: %s [%s]", self.address, err, report)
             raise AquaPrecisePairingError(
                 f"Could not connect to {self.address}: {err}. Ensure the device is "
-                "in pairing mode, the phone app is disconnected, and the proxy is in range."
+                "in pairing mode, the phone app is disconnected, and the proxy is in "
+                f"range. [{report}]"
             ) from err
         finally:
             await self._safe_disconnect(client)
@@ -212,7 +247,8 @@ class AquaPreciseBleDevice:
                 )
                 await asyncio.sleep(0.6)
         raise AquaPreciseBleError(
-            f"BLE write to {self.address} failed after {attempts} attempts: {last_error}"
+            f"BLE write to {self.address} failed after {attempts} attempts: "
+            f"{last_error} [{self.signal_report()}]"
         )
 
     async def _write_sequence(self, writes: tuple[tuple[str, bytes], ...]) -> None:
