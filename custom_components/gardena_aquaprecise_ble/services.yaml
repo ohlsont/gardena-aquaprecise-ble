@@ -1,0 +1,29 @@
+start_watering:
+  name: Start watering
+  description: >-
+    Start watering on the Gardena AquaPrecise. Optionally specify a duration in
+    minutes; otherwise the integration's configured default duration is used.
+  target:
+    entity:
+      integration: gardena_aquaprecise_ble
+      domain: switch
+  fields:
+    minutes:
+      name: Minutes
+      description: How long to water, in minutes.
+      required: false
+      example: 5
+      selector:
+        number:
+          min: 1
+          max: 120
+          unit_of_measurement: min
+          mode: box
+
+stop_watering:
+  name: Stop watering
+  description: Stop watering on the Gardena AquaPrecise.
+  target:
+    entity:
+      integration: gardena_aquaprecise_ble
+      domain: switch

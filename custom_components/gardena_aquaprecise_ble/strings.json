@@ -1,0 +1,54 @@
+{
+  "config": {
+    "flow_title": "{name}",
+    "step": {
+      "user": {
+        "title": "Select your AquaPrecise",
+        "description": "Choose the discovered Gardena AquaPrecise to add. Make sure it is within range of your Bluetooth proxy and advertising.",
+        "data": {
+          "address": "Device"
+        }
+      },
+      "pair": {
+        "title": "Pair with {device}",
+        "description": "Put the AquaPrecise into pairing mode (hold the button until the LED blinks) and make sure the Gardena app on your phone is closed and disconnected (turn the phone's Bluetooth off if unsure). Then submit to pair. You can press submit again to retry."
+      }
+    },
+    "error": {
+      "not_connectable": "That device isn't connectable right now. Move the proxy closer or wait for it to advertise again.",
+      "pairing_failed": "Pairing failed. Put the AquaPrecise into pairing mode, disconnect the Gardena phone app, and try again.",
+      "cannot_connect": "Could not connect. Check that the Bluetooth proxy is online and within range of the device."
+    },
+    "abort": {
+      "no_devices_found": "No AquaPrecise was found. Make sure it is advertising (in pairing mode) and within range of a Bluetooth proxy.",
+      "already_configured": "This device is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "AquaPrecise options",
+        "data": {
+          "duration_minutes": "Default watering duration (minutes)",
+          "scan_interval_minutes": "State refresh interval (minutes)"
+        }
+      }
+    }
+  },
+  "services": {
+    "start_watering": {
+      "name": "Start watering",
+      "description": "Start watering on the Gardena AquaPrecise.",
+      "fields": {
+        "minutes": {
+          "name": "Minutes",
+          "description": "How long to water, in minutes. Omit to use the configured default."
+        }
+      }
+    },
+    "stop_watering": {
+      "name": "Stop watering",
+      "description": "Stop watering on the Gardena AquaPrecise."
+    }
+  }
+}
