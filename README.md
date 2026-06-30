@@ -107,8 +107,8 @@ this right and setup is quick:
 
 1. **Disconnect the phone app** — close the Gardena app and turn the phone's
    **Bluetooth off** (otherwise it holds the device's one connection).
-2. **Put the AquaPrecise in pairing mode** — press/hold its button until the
-   LED blinks.
+2. **Put the AquaPrecise in pairing mode** — long-press the button on the unit
+   until the light starts blinking blue.
 3. In Home Assistant, the device is usually **auto-discovered** — look for a
    *Gardena AquaPrecise BLE* discovery card and click **Configure**.
    Otherwise: **Settings → Devices & services → Add integration → Gardena
@@ -228,20 +228,24 @@ logger:
 
 ## Development
 
-Quality tooling lives at the repo root and runs in CI on every push/PR
-(`.github/workflows/ci.yml`): **Ruff** (lint + format), **hassfest** and the
-**HACS action** (manifest/repo validation), and **pytest**.
+Tooling is managed with [**uv**](https://docs.astral.sh/uv/) and runs in CI on
+every push/PR (`.github/workflows/ci.yml`): **Ruff** (lint + format), Astral's
+**ty** (type check), **hassfest** and the **HACS action** (manifest/repo
+validation), and **pytest**.
 
 ```bash
-# one-time
-pip install -r requirements-test.txt
-pip install ruff pre-commit
-pre-commit install
+# lint + format (no install needed; uvx fetches the tool)
+uvx ruff check .
+uvx ruff format --check .
 
-# lint, format, type-check, test
-ruff check .
-ruff format --check .
-pytest
+# type check + tests (need the HA test stack)
+uv venv
+uv pip install -r requirements-test.txt
+uv run ty check
+uv run pytest
+
+# optional: install the pre-commit hooks
+uvx pre-commit install
 ```
 
 Tests use `pytest-homeassistant-custom-component` and require Python 3.12+

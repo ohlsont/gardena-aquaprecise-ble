@@ -11,12 +11,24 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: astral-sh/ruff-action@v3
+      - uses: astral-sh/setup-uv@v6
+      - run: uvx ruff@0.15.20 check .
+      - run: uvx ruff@0.15.20 format --check .
+
+  typecheck:
+    name: ty (type check)
+    runs-on: ubuntu-latest
+    # Astral's ty is pre-1.0; keep it informational until the tree is ty-clean,
+    # then drop continue-on-error to make it blocking.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
         with:
-          args: check
-      - uses: astral-sh/ruff-action@v3
-        with:
-          args: format --check
+          python-version: "3.13"
+      - run: uv venv
+      - run: uv pip install -r requirements-test.txt
+      - run: uv run ty check
 
   hassfest:
     name: Hassfest (manifest validation)
@@ -41,8 +53,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
-      - run: pip install -r requirements-test.txt
-      - run: pytest --cov=custom_components.gardena_aquaprecise_ble --cov-report=term-missing
+      - run: uv venv
+      - run: uv pip install -r requirements-test.txt
+      - run: uv run pytest --cov=custom_components.gardena_aquaprecise_ble --cov-report=term-missing

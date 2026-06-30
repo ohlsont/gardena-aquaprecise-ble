@@ -1,4 +1,20 @@
 # Test + dev dependencies. The plugin pins a matching Home Assistant + pytest stack.
 pytest-homeassistant-custom-component
+
+# Astral dev tooling (run via uv: `uvx ruff`, `uvx ty check`).
+ruff
+ty
+
 # Runtime requirement of the integration (declared in manifest.json).
 bleak-retry-connector>=3.8.0
+
+# Home Assistant's `bluetooth` integration imports the `usb` integration at
+# import time, and neither component's requirements are installed by the test
+# plugin automatically. Pull them in so the integration is importable in tests.
+aiousbwatcher
+pyudev
+habluetooth
+bluetooth-adapters
+bluetooth-auto-recovery
+bluetooth-data-tools
+dbus-fast

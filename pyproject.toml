@@ -39,10 +39,8 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 addopts = "-q"
 
-[tool.mypy]
-python_version = "3.12"
-ignore_missing_imports = true
-warn_unused_ignores = true
-warn_redundant_casts = true
-check_untyped_defs = true
-disallow_incomplete_defs = true
+[tool.ty.environment]
+python-version = "3.12"
+
+[tool.ty.src]
+include = ["custom_components"]

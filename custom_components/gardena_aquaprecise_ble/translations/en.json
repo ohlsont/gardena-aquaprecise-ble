@@ -4,14 +4,14 @@
     "step": {
       "user": {
         "title": "Select your AquaPrecise",
-        "description": "Choose the discovered Gardena AquaPrecise to add. Make sure it is within range of your Bluetooth proxy and advertising.",
+        "description": "Make sure the AquaPrecise unit is in Bluetooth pairing mode (long-press the button on the unit until the light starts blinking blue). Then choose the discovered Gardena AquaPrecise to add. Make sure it is within range of your Bluetooth proxy and advertising.",
         "data": {
           "address": "Device"
         }
       },
       "pair": {
         "title": "Pair with {device}",
-        "description": "Put the AquaPrecise into pairing mode (hold the button until the LED blinks) and make sure the Gardena app on your phone is closed and disconnected (turn the phone's Bluetooth off if unsure). Then submit to pair. You can press submit again to retry."
+        "description": "Put the AquaPrecise into pairing mode (long-press the button until the light starts blinking blue) and make sure the Gardena app on your phone is closed and disconnected (turn the phone's Bluetooth off if unsure). Then submit to pair. You can press submit again to retry."
       }
     },
     "error": {
