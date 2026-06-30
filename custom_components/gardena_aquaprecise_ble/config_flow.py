@@ -5,13 +5,11 @@ from __future__ import annotations
 from dataclasses import dataclass
 import logging
 
-import voluptuous as vol
-
 from homeassistant import config_entries
 from homeassistant.components import bluetooth
 from homeassistant.components.bluetooth import BluetoothServiceInfoBleak
-from homeassistant.helpers import config_validation as cv
-from homeassistant.helpers import selector
+from homeassistant.helpers import config_validation as cv, selector
+import voluptuous as vol
 
 from .ble import AquaPreciseBleDevice, AquaPreciseBleError, AquaPrecisePairingError
 from .const import (
@@ -89,9 +87,7 @@ class GardenaAquaPreciseConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         await self.async_set_unique_id(discovery_info.address)
         self._abort_if_unique_id_configured()
         self._upsert(discovery_info)
-        self.context["title_placeholders"] = {
-            "name": discovery_info.name or "AquaPrecise"
-        }
+        self.context["title_placeholders"] = {"name": discovery_info.name or "AquaPrecise"}
         return await self.async_step_user()
 
     async def async_step_user(

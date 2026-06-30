@@ -16,7 +16,6 @@ from bleak import BleakClient
 from bleak.backends.device import BLEDevice
 from bleak.exc import BleakError
 from bleak_retry_connector import establish_connection
-
 from homeassistant.components import bluetooth
 from homeassistant.core import HomeAssistant
 
@@ -57,9 +56,7 @@ class AquaPreciseBleDevice:
 
     def _get_ble_device(self) -> BLEDevice | None:
         """Return a connectable BLEDevice from HA's manager (local or proxy)."""
-        return bluetooth.async_ble_device_from_address(
-            self.hass, self.address, connectable=True
-        )
+        return bluetooth.async_ble_device_from_address(self.hass, self.address, connectable=True)
 
     async def _connect(self) -> BleakClient:
         """Establish a connection through the best available adapter/proxy."""
@@ -89,12 +86,14 @@ class AquaPreciseBleDevice:
         return available
 
     def _has_control_chars(self, client: BleakClient) -> bool:
-        """True if the mandatory watering-control characteristics are present."""
+        """Return True if the mandatory watering-control characteristics are present."""
         available = self._collect_char_uuids(client)
         required = {CHAR_DURATION_UUID, CHAR_TRIGGER_UUID, CHAR_POWER_UUID}
         missing = required - available
         if missing:
-            _LOGGER.debug("Missing control characteristics on %s: %s", self.address, sorted(missing))
+            _LOGGER.debug(
+                "Missing control characteristics on %s: %s", self.address, sorted(missing)
+            )
         return not missing
 
     async def async_pair(self) -> bool:
@@ -116,9 +115,13 @@ class AquaPreciseBleDevice:
                 result = await asyncio.wait_for(client.pair(), timeout=PAIRING_TIMEOUT)
                 _LOGGER.debug("pair() on %s returned %r", self.address, result)
             except NotImplementedError:
-                _LOGGER.debug("Explicit pairing not implemented for %s (proxy/backend)", self.address)
-            except (BleakError, TimeoutError, asyncio.TimeoutError) as err:
-                _LOGGER.debug("Explicit pairing failed for %s: %s (will verify chars)", self.address, err)
+                _LOGGER.debug(
+                    "Explicit pairing not implemented for %s (proxy/backend)", self.address
+                )
+            except (BleakError, TimeoutError) as err:
+                _LOGGER.debug(
+                    "Explicit pairing failed for %s: %s (will verify chars)", self.address, err
+                )
 
             if self._has_control_chars(client):
                 return True
@@ -131,7 +134,7 @@ class AquaPreciseBleDevice:
             )
         except AquaPreciseBleError:
             raise
-        except (BleakError, TimeoutError, asyncio.TimeoutError) as err:
+        except (BleakError, TimeoutError) as err:
             raise AquaPrecisePairingError(
                 f"Could not connect to {self.address}: {err}. Ensure the device is "
                 "in pairing mode, the phone app is disconnected, and the proxy is in range."
@@ -172,7 +175,7 @@ class AquaPreciseBleDevice:
                 )
                 if raw:
                     power = bytes(raw)[0] == 0x01
-            except (BleakError, TimeoutError, asyncio.TimeoutError) as err:
+            except (BleakError, TimeoutError) as err:
                 _LOGGER.debug("Power read failed for %s: %s", self.address, err)
 
             try:
@@ -181,7 +184,7 @@ class AquaPreciseBleDevice:
                 )
                 if raw:
                     battery = max(0, min(100, int(bytes(raw)[0])))
-            except (BleakError, TimeoutError, asyncio.TimeoutError) as err:
+            except (BleakError, TimeoutError) as err:
                 _LOGGER.debug("Battery read failed for %s: %s", self.address, err)
 
             return power, battery
@@ -198,7 +201,7 @@ class AquaPreciseBleDevice:
                 return
             except AquaPreciseNotInRange:
                 raise
-            except (BleakError, TimeoutError, asyncio.TimeoutError) as err:
+            except (BleakError, TimeoutError) as err:
                 last_error = err
                 _LOGGER.warning(
                     "BLE write attempt %s/%s failed for %s: %s",
@@ -234,5 +237,5 @@ class AquaPreciseBleDevice:
             if client.is_connected:
                 await client.disconnect()
                 _LOGGER.debug("Disconnected from %s", self.address)
-        except (BleakError, TimeoutError, asyncio.TimeoutError) as err:  # pragma: no cover
+        except (BleakError, TimeoutError) as err:  # pragma: no cover
             _LOGGER.debug("Error during disconnect from %s: %s", self.address, err)

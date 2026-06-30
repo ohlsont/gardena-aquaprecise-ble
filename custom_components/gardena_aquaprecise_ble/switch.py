@@ -4,8 +4,6 @@ from __future__ import annotations
 
 from typing import Any
 
-import voluptuous as vol
-
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -13,6 +11,7 @@ from homeassistant.helpers import entity_platform
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
+import voluptuous as vol
 
 from .const import (
     DOMAIN,
@@ -44,9 +43,7 @@ async def async_setup_entry(
         },
         "async_start_watering_service",
     )
-    platform.async_register_entity_service(
-        SERVICE_STOP_WATERING, {}, "async_stop_watering_service"
-    )
+    platform.async_register_entity_service(SERVICE_STOP_WATERING, {}, "async_stop_watering_service")
 
 
 class AquaPreciseWateringSwitch(CoordinatorEntity[AquaPreciseCoordinator], SwitchEntity):

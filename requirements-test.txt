@@ -1,0 +1,4 @@
+# Test + dev dependencies. The plugin pins a matching Home Assistant + pytest stack.
+pytest-homeassistant-custom-component
+# Runtime requirement of the integration (declared in manifest.json).
+bleak-retry-connector>=3.8.0

@@ -226,6 +226,28 @@ logger:
 
 ---
 
+## Development
+
+Quality tooling lives at the repo root and runs in CI on every push/PR
+(`.github/workflows/ci.yml`): **Ruff** (lint + format), **hassfest** and the
+**HACS action** (manifest/repo validation), and **pytest**.
+
+```bash
+# one-time
+pip install -r requirements-test.txt
+pip install ruff pre-commit
+pre-commit install
+
+# lint, format, type-check, test
+ruff check .
+ruff format --check .
+pytest
+```
+
+Tests use `pytest-homeassistant-custom-component` and require Python 3.12+
+(the same baseline as current Home Assistant); they don't touch real Bluetooth
+— the GATT client is mocked.
+
 ## Credits
 
 GATT protocol and discovery approach are based on the (now archived)
