@@ -12,6 +12,7 @@ bleak-retry-connector>=3.8.0
 # import time, and neither component's requirements are installed by the test
 # plugin automatically. Pull them in so the integration is importable in tests.
 aiousbwatcher
+pyserial
 pyudev
 habluetooth
 bluetooth-adapters
