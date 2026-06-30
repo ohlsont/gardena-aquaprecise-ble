@@ -1,0 +1,33 @@
+name: Release
+
+# Cut a release by pushing a tag that matches the manifest version, e.g.:
+#   git tag v1.1.0 && git push origin v1.1.0
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish GitHub release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify tag matches manifest version
+        run: |
+          manifest="custom_components/gardena_aquaprecise_ble/manifest.json"
+          want="v$(jq -r .version "$manifest")"
+          if [ "$want" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match manifest version ${want}."
+            echo "Bump \"version\" in $manifest to match the tag (or tag $want)."
+            exit 1
+          fi
+
+      - name: Create release with auto-generated notes
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
